@@ -44,6 +44,11 @@ This project is a credit application system demo for Payten
 ### Hexagonal Architecture Flow Diagram (click to enlarge)
 [![Hexagonal Architecture Flow Diagram](./images//hexagonal-flow-diagram_sm.jpg)](./images//hexagonal-flow-diagram_sm.jpg)
 
+<div align="left">
+Image referenced: <a src="https://github.com/AlicanAkkus/Modular-Architecture-Hexagonal-Demo-Project">Lemi Orhan Ergin and Alican Akkus - Modular Architecture Hexagonal Demo Project </a>
+</div>
+
+
 ---
 
 ### Database Diagram
