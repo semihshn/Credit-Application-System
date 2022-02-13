@@ -80,7 +80,6 @@ Here is the list of technologies I used for the Credit Application System;
 * Docker
 * PostgreSql
 * Redis(**Used redis at end point /creditapplicationinformations/{identificationnumber}**)
-* Unit tests
 * Custom Exception Handler
 * Lombok
 * Swagger UI
