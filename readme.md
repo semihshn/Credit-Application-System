@@ -36,7 +36,7 @@ This project is a credit application system demo for Payten
 > - And now you can use all the end-pointes :blush:
 
 ## Reports
-* [Sonar Report](https://sonarcloud.io/dashboard?id=hex)
+* [Sonar Report](#)
 
 ---
 <div align="center">
