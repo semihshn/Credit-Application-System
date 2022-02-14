@@ -1,0 +1,101 @@
+name: Build Credit Application System API Image
+
+on:
+  push:
+    paths:
+      - credit-system/**
+      - .github/workflows/credit-system*.yml
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    services:
+
+      redis:
+        image: redis
+        env:
+          ALLOW_EMPTY_PASSWORD: yes
+          REDIS_DISABLE_COMMANDS: FLUSHDB,FLUSHALL
+        ports:
+          - 6379:6379
+
+      postgres:
+        image: postgres
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      zookeeper:
+        image: confluentinc/cp-zookeeper:latest
+        env:
+          ZOOKEEPER_CLIENT_PORT: 2181
+          ZOOKEEPER_TICK_TIME: 2000
+
+      kafka:
+        image: confluentinc/cp-kafka:latest
+        ports:
+          - 29092:29092
+          - 9092:9092
+        env:
+          KAFKA_BROKER_ID: 1
+          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Set Up Java 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Cache gradle dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+
+      - name: Build with Thundra
+        uses: thundra-io/thundra-gradle-test-action@v1
+        with:
+          apikey: 2a0ad462-59bb-4c4d-9d43-ab3705aad4c8
+          project_id: 68b8e211-fbee-4cc5-9794-34912c05452c
+          command: ./gradlew clean verifierStubsJar :payment-api:build :payment-api:bootJar -PskipInfraSetup -Dorg.gradle.daemon=false --rerun-tasks
+
+      - name: Upload Jar File
+        uses: actions/upload-artifact@v1
+        with:
+          name: payment-api-jar
+          path: payment-api/build/libs
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          dockerfile: ./payment-api/Dockerfile
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: payment-api
+          push: true
+          tags: lemiorhan/hexagonaldemo-paymentapi:latest
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}

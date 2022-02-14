@@ -37,7 +37,7 @@ export class AuthService {
       (data) => {
         // this.saveToken(data.body.data.token);
         // this.userToken = data.body.token;
-        console.log(data);
+        console.log(data.headers.get('X-Token'));
         
         
         
@@ -67,8 +67,12 @@ export class AuthService {
   }
 
   loginforToken(loginRequest: LoginRequest): Observable<any> {
+    this.httpClient.post<any>(this.apiUrl + 'login', loginRequest,{observe:'response'}).subscribe((resp:any)=>{
+      console.log(resp.headers.get('X-Token'));
+      
+    })
 
-    return this.httpClient.post<JwtResponse>(this.apiUrl + 'login', loginRequest,{});
+    return this.httpClient.post<any>(this.apiUrl + 'login', loginRequest,{observe:'response'});
   }
 
   saveToken(token:any) {
